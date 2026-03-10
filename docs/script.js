@@ -1,4 +1,3 @@
-// frontend/script.js
 function loadMessages() {
   fetch("https://verifica-tpsi.onrender.com/api/messages")
     .then(res => res.json())
@@ -14,7 +13,6 @@ function loadMessages() {
     .catch(err => console.error("Errore:", err));
 }
 
-// Esempio POST
 function addMessage(text) {
   fetch("https://verifica-tpsi.onrender.com/api/messages", {
     method: "POST",
@@ -22,6 +20,6 @@ function addMessage(text) {
     body: JSON.stringify({ text })
   })
     .then(res => res.json())
-    .then(data => console.log(data))
+    .then(data => loadMessages())
     .catch(err => console.error("Errore:", err));
 }
