@@ -1,9 +1,10 @@
+// backend URL
 const backendURL = "https://verifica-tpsi.onrender.com/api";
 
-// --- UTENTI ---
+// UTENTI
 let currentUserId = null;
 
-// Carica utenti in select
+// Carica utenti
 function loadUsers() {
   fetch(`${backendURL}/users`)
     .then(res => res.json())
@@ -29,13 +30,12 @@ function updateCredits() {
     .then(res => res.json())
     .then(data => {
       const user = data.find(u => u.id === currentUserId);
-      document.getElementById("userCredits").textContent = user.credits;
+      const creditsSpan = document.getElementById("userCredits");
+      if (creditsSpan) creditsSpan.textContent = user.credits;
     });
 }
 
-document.getElementById("userSelect")?.addEventListener("change", updateCredits);
-
-// --- PRODOTTI ---
+// PRODOTTI
 function loadProducts() {
   fetch(`${backendURL}/products`)
     .then(res => res.json())
@@ -45,18 +45,21 @@ function loadProducts() {
       data.forEach(p => {
         const li = document.createElement("li");
         li.textContent = `${p.name} - Prezzo: ${p.price} - Stock: ${p.stock}`;
-        if (document.body.title.includes("Utente")) {
+
+        // Bottone compra solo per user.html
+        if (document.title.includes("Utente")) {
           const btn = document.createElement("button");
           btn.textContent = "Compra";
-          btn.onclick = () => buyProduct(p.id);
+          btn.addEventListener("click", () => buyProduct(p.id));
           li.appendChild(btn);
         }
+
         list.appendChild(li);
       });
     });
 }
 
-// --- ACQUISTO ---
+// ACQUISTO
 function buyProduct(productId) {
   fetch(`${backendURL}/buy`, {
     method: "POST",
@@ -71,7 +74,7 @@ function buyProduct(productId) {
     });
 }
 
-// --- ADMIN ---
+// ADMIN
 function addProduct() {
   const name = document.getElementById("prodName").value;
   const price = parseInt(document.getElementById("prodPrice").value);
@@ -105,6 +108,12 @@ function addCredits() {
     });
 }
 
-// --- INIT ---
+// --- Event Listeners per bottoni ---
+document.getElementById("btnLoadProducts")?.addEventListener("click", loadProducts);
+document.getElementById("btnAddProduct")?.addEventListener("click", addProduct);
+document.getElementById("btnAddCredits")?.addEventListener("click", addCredits);
+document.getElementById("userSelect")?.addEventListener("change", updateCredits);
+
+// INIT
 loadUsers();
 loadProducts();

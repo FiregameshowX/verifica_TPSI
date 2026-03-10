@@ -2,19 +2,28 @@
 <html lang="it">
 <head>
   <meta charset="UTF-8">
-  <title>Verifica TPSI</title>
+  <title>Vista Admin - E-Commerce</title>
   <link rel="stylesheet" href="style.css">
+  <link rel="icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUA..." type="image/png">
 </head>
 <body>
-  <h1>Messaggi</h1>
-  
-  <ul id="messages"></ul>
+  <h1>Dashboard Admin</h1>
 
-  <button onclick="loadMessages()">Load Messages</button>
+  <h2>Prodotti</h2>
+  <ul id="products"></ul>
 
-  <input type="text" id="newMessage" placeholder="Scrivi un messaggio">
-  <button onclick="addMessage()">Add Message</button>
+  <h2>Aggiungi Prodotto</h2>
+  <input type="text" id="prodName" placeholder="Nome">
+  <input type="number" id="prodPrice" placeholder="Prezzo">
+  <input type="number" id="prodStock" placeholder="Stock">
+  <button id="btnAddProduct">Aggiungi Prodotto</button>
 
+  <h2>Aggiungi Crediti Utente</h2>
+  <select id="userSelect"></select>
+  <input type="number" id="creditsToAdd" placeholder="Crediti">
+  <button id="btnAddCredits">Aggiungi Crediti</button>
+
+  <!-- Tutto il JS esterno -->
   <script src="script.js"></script>
 </body>
 </html>
