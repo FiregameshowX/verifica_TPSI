@@ -7,8 +7,14 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-const USERS_FILE = "users.json";
-const PRODUCTS_FILE = "products.json";
+const path = require("path");
+
+// Esempio per users.json
+const USERS_FILE = path.join(__dirname, "users.json");
+
+// Esempio per products.json
+const PRODUCTS_FILE = path.join(__dirname, "products.json");
+
 
 // --- Lettura dati ---
 let users = fs.existsSync(USERS_FILE) 
@@ -91,7 +97,7 @@ app.post("/api/login", (req, res) => {
 
   // Cerca utente
   const user = users.find(u => u.username === username && u.password === password);
-
+    console.log("POST login:", username, password);
   if(!user){
     return res.status(401).json({ error: "Credenziali errate" });
   }
