@@ -2,12 +2,27 @@
 <html lang="it">
 <head>
   <meta charset="UTF-8">
-  <title>E-Commerce</title>
+  <title>Seleziona Vista - E-Commerce</title>
+  <link rel="stylesheet" href="style.css">
+  <!-- Favicon inline per evitare blocchi CSP -->
+  <link rel="icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUA..." type="image/png">
 </head>
 <body>
+  <h1>Benvenuto all’E-Commerce</h1>
+  <p>Seleziona la vista:</p>
+  
+  <button id="btnUser">Vista Utente</button>
+  <button id="btnAdmin">Vista Admin</button>
 
-  <h1>Seleziona Vista</h1>
-<button onclick="location.href='user.html'">Utente</button>
-<button onclick="location.href='admin.html'">Admin</button>
+  <!-- JS esterno -->
+  <script>
+    document.getElementById("btnUser").addEventListener("click", () => {
+      window.location.href = "user.html";
+    });
+
+    document.getElementById("btnAdmin").addEventListener("click", () => {
+      window.location.href = "admin.html";
+    });
+  </script>
 </body>
 </html>
