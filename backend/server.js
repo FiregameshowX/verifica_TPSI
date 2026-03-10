@@ -1,38 +1,46 @@
+// backend/server.js
+const fs = require("fs");
 const express = require("express");
 const cors = require("cors");
-const fs = require("fs");
 
 const app = express();
-app.use(cors());
-app.use(express.json());
+app.use(cors());           // consente richieste da GitHub Pages
+app.use(express.json());    // consente JSON nel body
 
 const DATA_FILE = "messages.json";
 
-// Legge file o crea default
-const fs = require("fs");
-
+// Carica i messaggi da messages.json
 let messages = [];
 if (fs.existsSync(DATA_FILE)) {
-  messages = JSON.parse(fs.readFileSync(DATA_FILE, "utf-8")); // ← legge messages.json
+  try {
+    messages = JSON.parse(fs.readFileSync(DATA_FILE, "utf-8"));
+  } catch (err) {
+    console.error("Errore nel leggere messages.json:", err);
+    messages = [];
+  }
 } else {
-  messages = [
-    { text: "ciao mondo" },
-    { text: "test API" }
-  ];
-  fs.writeFileSync(DATA_FILE, JSON.stringify(messages, null, 2));
+  // Se il file non esiste, inizializza array vuoto (Render non permette scrittura durante il deploy)
+  messages = [];
 }
-// GET
+
+// GET /api/messages → restituisce tutti i messaggi
 app.get("/api/messages", (req, res) => {
   res.json(messages);
 });
 
-// POST
+// POST /api/messages → aggiunge un nuovo messaggio (in memoria)
 app.post("/api/messages", (req, res) => {
   const newMessage = req.body;
+  if (!newMessage || !newMessage.text) {
+    return res.status(400).json({ error: "Messaggio mancante" });
+  }
+
   messages.push(newMessage);
-  fs.writeFileSync(DATA_FILE, JSON.stringify(messages, null, 2));
-  res.json({ success: true });
+
+  // ⚠️ Non scriviamo su file durante il deploy
+  res.json({ success: true, message: newMessage });
 });
 
+// Porta compatibile con Render
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
