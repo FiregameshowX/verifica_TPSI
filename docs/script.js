@@ -1,15 +1,17 @@
 // backend URL
 const backendURL = "https://verifica-tpsi.onrender.com/api";
 
-// UTENTI
+// UTENTE CORRENTE
 let currentUserId = null;
 
-// Carica utenti
-function loadUsers() {
+// --- FUNZIONI ADMIN ---
+function loadUsersAdmin() {
+  const select = document.getElementById("userSelect");
+  if (!select) return; // sicurezza se non esiste (user.html)
+
   fetch(`${backendURL}/users`)
     .then(res => res.json())
     .then(data => {
-      const select = document.getElementById("userSelect");
       select.innerHTML = "";
       data.forEach(u => {
         const option = document.createElement("option");
@@ -17,36 +19,82 @@ function loadUsers() {
         option.textContent = u.name;
         select.appendChild(option);
       });
-      currentUserId = data[0]?.id || null;
-      updateCredits();
+      currentUserId = parseInt(select.value) || null;
+      updateCreditsAdmin();
     });
 }
 
-// Aggiorna crediti utente
-function updateCredits() {
+function updateCreditsAdmin() {
   const select = document.getElementById("userSelect");
+  if (!select) return;
   currentUserId = parseInt(select.value);
+
   fetch(`${backendURL}/users`)
     .then(res => res.json())
     .then(data => {
       const user = data.find(u => u.id === currentUserId);
       const creditsSpan = document.getElementById("userCredits");
-      if (creditsSpan) creditsSpan.textContent = user.credits;
+      if (creditsSpan && user) creditsSpan.textContent = user.credits;
     });
 }
 
-// PRODOTTI
+function addCredits() {
+  const select = document.getElementById("userSelect");
+  const input = document.getElementById("creditsToAdd");
+  if (!select || !input) return;
+
+  const userId = parseInt(select.value);
+  const credits = parseInt(input.value);
+  if (isNaN(credits)) return alert("Inserisci un numero valido!");
+
+  fetch(`${backendURL}/addCredits`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ userId, credits })
+  })
+    .then(res => res.json())
+    .then(data => {
+      if(data.error) alert(data.error);
+      else {
+        alert("Crediti aggiunti!");
+        updateCreditsAdmin();
+      }
+    });
+}
+
+function addProduct() {
+  const name = document.getElementById("prodName")?.value;
+  const price = parseInt(document.getElementById("prodPrice")?.value);
+  const stock = parseInt(document.getElementById("prodStock")?.value);
+
+  if (!name || isNaN(price) || isNaN(stock)) return alert("Compila tutti i campi correttamente!");
+
+  fetch(`${backendURL}/addProduct`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ name, price, stock })
+  })
+    .then(res => res.json())
+    .then(data => {
+      alert("Prodotto aggiunto!");
+      loadProducts(); // aggiorna lista prodotti
+    });
+}
+
+// --- FUNZIONI USER ---
 function loadProducts() {
+  const list = document.getElementById("products");
+  if (!list) return;
+
   fetch(`${backendURL}/products`)
     .then(res => res.json())
     .then(data => {
-      const list = document.getElementById("products");
       list.innerHTML = "";
       data.forEach(p => {
         const li = document.createElement("li");
         li.textContent = `${p.name} - Prezzo: ${p.price} - Stock: ${p.stock}`;
 
-        // Bottone compra solo per user.html
+        // Bottone compra solo se siamo su user.html
         if (document.title.includes("Utente")) {
           const btn = document.createElement("button");
           btn.textContent = "Compra";
@@ -59,8 +107,9 @@ function loadProducts() {
     });
 }
 
-// ACQUISTO
 function buyProduct(productId) {
+  if (!currentUserId) return alert("Seleziona un utente!");
+
   fetch(`${backendURL}/buy`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -70,50 +119,40 @@ function buyProduct(productId) {
     .then(data => {
       if (data.error) alert(data.error);
       loadProducts();
-      updateCredits();
+      updateCreditsUser();
     });
 }
 
-// ADMIN
-function addProduct() {
-  const name = document.getElementById("prodName").value;
-  const price = parseInt(document.getElementById("prodPrice").value);
-  const stock = parseInt(document.getElementById("prodStock").value);
+function updateCreditsUser() {
+  const creditsSpan = document.getElementById("userCredits");
+  if (!creditsSpan || !currentUserId) return;
 
-  fetch(`${backendURL}/addProduct`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ name, price, stock })
-  })
+  fetch(`${backendURL}/users`)
     .then(res => res.json())
     .then(data => {
-      alert("Prodotto aggiunto!");
-      loadProducts();
+      const user = data.find(u => u.id === currentUserId);
+      if(user) creditsSpan.textContent = user.credits;
     });
 }
 
-function addCredits() {
-  const userId = parseInt(document.getElementById("userSelect").value);
-  const credits = parseInt(document.getElementById("creditsToAdd").value);
+// --- EVENT LISTENERS ---
+document.addEventListener("DOMContentLoaded", () => {
+  if (document.getElementById("btnLoadProducts")) {
+    document.getElementById("btnLoadProducts").addEventListener("click", loadProducts);
+  }
 
-  fetch(`${backendURL}/addCredits`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ userId, credits })
-  })
-    .then(res => res.json())
-    .then(data => {
-      alert("Crediti aggiunti!");
-      updateCredits();
-    });
-}
+  if (document.getElementById("btnAddProduct")) {
+    document.getElementById("btnAddProduct").addEventListener("click", addProduct);
+  }
 
-// --- Event Listeners per bottoni ---
-document.getElementById("btnLoadProducts")?.addEventListener("click", loadProducts);
-document.getElementById("btnAddProduct")?.addEventListener("click", addProduct);
-document.getElementById("btnAddCredits")?.addEventListener("click", addCredits);
-document.getElementById("userSelect")?.addEventListener("change", updateCredits);
+  if (document.getElementById("btnAddCredits")) {
+    document.getElementById("btnAddCredits").addEventListener("click", addCredits);
+  }
 
-// INIT
-loadUsers();
-loadProducts();
+  if (document.getElementById("userSelect")) {
+    document.getElementById("userSelect").addEventListener("change", updateCreditsAdmin);
+    loadUsersAdmin(); // solo admin
+  }
+
+  loadProducts(); // carica prodotti su tutte le pagine
+});
