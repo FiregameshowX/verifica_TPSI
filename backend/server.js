@@ -80,3 +80,11 @@ app.post("/api/addCredits", (req, res) => {
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+
+//post LOGIN 
+app.post("/api/login", (req, res) => {
+  const { username, password } = req.body;
+  const user = users.find(u => u.username === username && u.password === password);
+  if(!user) return res.status(401).json({ error: "Credenziali errate" });
+  res.json({ id: user.id, name: user.name, isAdmin: user.isAdmin, credits: user.credits });
+});
