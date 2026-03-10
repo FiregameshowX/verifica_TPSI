@@ -9,16 +9,18 @@ app.use(express.json());
 const DATA_FILE = "messages.json";
 
 // Legge file o crea default
+const fs = require("fs");
+
 let messages = [];
 if (fs.existsSync(DATA_FILE)) {
-  messages = JSON.parse(fs.readFileSync(DATA_FILE));
+  messages = JSON.parse(fs.readFileSync(DATA_FILE, "utf-8")); // ← legge messages.json
 } else {
   messages = [
     { text: "ciao mondo" },
     { text: "test API" }
   ];
+  fs.writeFileSync(DATA_FILE, JSON.stringify(messages, null, 2));
 }
-
 // GET
 app.get("/api/messages", (req, res) => {
   res.json(messages);
