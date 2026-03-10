@@ -1,46 +1,82 @@
 // backend/server.js
-const fs = require("fs");
 const express = require("express");
 const cors = require("cors");
+const fs = require("fs");
 
 const app = express();
-app.use(cors());           // consente richieste da GitHub Pages
-app.use(express.json());    // consente JSON nel body
+app.use(cors());
+app.use(express.json());
 
-const DATA_FILE = "messages.json";
+const USERS_FILE = "users.json";
+const PRODUCTS_FILE = "products.json";
 
-// Carica i messaggi da messages.json
-let messages = [];
-if (fs.existsSync(DATA_FILE)) {
-  try {
-    messages = JSON.parse(fs.readFileSync(DATA_FILE, "utf-8"));
-  } catch (err) {
-    console.error("Errore nel leggere messages.json:", err);
-    messages = [];
-  }
-} else {
-  // Se il file non esiste, inizializza array vuoto (Render non permette scrittura durante il deploy)
-  messages = [];
-}
+// --- Lettura dati ---
+let users = fs.existsSync(USERS_FILE) 
+  ? JSON.parse(fs.readFileSync(USERS_FILE, "utf-8"))
+  : [
+      { id: 1, name: "Mario", credits: 100 },
+      { id: 2, name: "Luigi", credits: 50 }
+    ];
 
-// GET /api/messages → restituisce tutti i messaggi
-app.get("/api/messages", (req, res) => {
-  res.json(messages);
+let products = fs.existsSync(PRODUCTS_FILE)
+  ? JSON.parse(fs.readFileSync(PRODUCTS_FILE, "utf-8"))
+  : [
+      { id: 1, name: "Prodotto A", price: 30, stock: 5 },
+      { id: 2, name: "Prodotto B", price: 20, stock: 10 }
+    ];
+
+// --- API ---
+// GET catalogo prodotti
+app.get("/api/products", (req, res) => {
+  res.json(products);
 });
 
-// POST /api/messages → aggiunge un nuovo messaggio (in memoria)
-app.post("/api/messages", (req, res) => {
-  const newMessage = req.body;
-  if (!newMessage || !newMessage.text) {
-    return res.status(400).json({ error: "Messaggio mancante" });
-  }
-
-  messages.push(newMessage);
-
-  // ⚠️ Non scriviamo su file durante il deploy
-  res.json({ success: true, message: newMessage });
+// GET lista utenti (solo admin)
+app.get("/api/users", (req, res) => {
+  res.json(users);
 });
 
-// Porta compatibile con Render
+// POST acquisto prodotto
+app.post("/api/buy", (req, res) => {
+  const { userId, productId } = req.body;
+
+  const user = users.find(u => u.id === userId);
+  const product = products.find(p => p.id === productId);
+
+  if (!user || !product) return res.status(404).json({ error: "Utente o prodotto non trovato" });
+  if (product.stock <= 0) return res.status(400).json({ error: "Prodotto esaurito" });
+  if (user.credits < product.price) return res.status(400).json({ error: "Crediti insufficienti" });
+
+  // Aggiorna dati
+  user.credits -= product.price;
+  product.stock -= 1;
+
+  // Salva su file JSON
+  fs.writeFileSync(USERS_FILE, JSON.stringify(users, null, 2));
+  fs.writeFileSync(PRODUCTS_FILE, JSON.stringify(products, null, 2));
+
+  res.json({ success: true, user, product });
+});
+
+// POST aggiungi prodotto (admin)
+app.post("/api/addProduct", (req, res) => {
+  const { name, price, stock } = req.body;
+  const newId = products.length ? Math.max(...products.map(p => p.id)) + 1 : 1;
+  const newProduct = { id: newId, name, price, stock };
+  products.push(newProduct);
+  fs.writeFileSync(PRODUCTS_FILE, JSON.stringify(products, null, 2));
+  res.json({ success: true, product: newProduct });
+});
+
+// POST aggiungi crediti (admin)
+app.post("/api/addCredits", (req, res) => {
+  const { userId, credits } = req.body;
+  const user = users.find(u => u.id === userId);
+  if (!user) return res.status(404).json({ error: "Utente non trovato" });
+  user.credits += credits;
+  fs.writeFileSync(USERS_FILE, JSON.stringify(users, null, 2));
+  res.json({ success: true, user });
+});
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
