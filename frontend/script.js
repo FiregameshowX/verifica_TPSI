@@ -1,6 +1,6 @@
 function loadMessages() {
 
-fetch("http://localhost:3000/api/messages")
+fetch("https://nome-app.onrender.com/api/messages")
 .then(res => res.json())
 .then(data => {
 
