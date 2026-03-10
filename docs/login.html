@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <title>Login - E-Commerce</title>
   <link rel="stylesheet" href="style.css">
+  <!-- Favicon inline per evitare blocchi CSP -->
   <link rel="icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUA..." type="image/png">
 </head>
 <body>
@@ -24,7 +25,7 @@
   <p id="loginMsg" style="color:red;"></p>
 
   <script>
-    const backendURL = "https://verifica-tpsi.onrender.com";
+    const backendURL = "https://verifica-tpsi.onrender.com/api";
 
     document.getElementById("btnLogin").addEventListener("click", () => {
       const username = document.getElementById("username").value.trim();
@@ -42,19 +43,18 @@
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, password })
       })
-      .then(res => res.json())
-      .then(data => {
-        if(data.error) {
-          msg.textContent = data.error;
-        } else {
-          // Salva utente loggato in localStorage
-          localStorage.setItem("currentUser", JSON.stringify(data));
-
-          if(data.isAdmin) window.location.href = "admin.html";
-          else window.location.href = "user.html";
-        }
+      .then(res => {
+        if(res.status === 401) throw new Error("Credenziali errate");
+        return res.json();
       })
-      .catch(err => { msg.textContent = "Errore server"; });
+      .then(data => {
+        // Redirige in base al tipo di utente
+        if(data.isAdmin) window.location.href = "admin.html";
+        else window.location.href = "user.html";
+      })
+      .catch(err => {
+        msg.textContent = err.message;
+      });
     });
   </script>
 </body>
