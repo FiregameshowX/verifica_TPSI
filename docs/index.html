@@ -2,27 +2,14 @@
 <html lang="it">
 <head>
   <meta charset="UTF-8">
-  <title>Seleziona Vista - E-Commerce</title>
+  <title>E-Commerce</title>
   <link rel="stylesheet" href="style.css">
-  <!-- Favicon inline per evitare blocchi CSP -->
+  <!-- Favicon inline per CSP -->
   <link rel="icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUA..." type="image/png">
+  <!-- Redirect alla pagina login -->
+  <meta http-equiv="refresh" content="0; url=login.html">
 </head>
 <body>
-  <h1>Benvenuto all’E-Commerce</h1>
-  <p>Seleziona la vista:</p>
-  
-  <button id="btnUser">Vista Utente</button>
-  <button id="btnAdmin">Vista Admin</button>
-
-  <!-- JS esterno -->
-  <script>
-    document.getElementById("btnUser").addEventListener("click", () => {
-      window.location.href = "user.html";
-    });
-
-    document.getElementById("btnAdmin").addEventListener("click", () => {
-      window.location.href = "admin.html";
-    });
-  </script>
+  <p>Se non vieni reindirizzato automaticamente, <a href="login.html">clicca qui per accedere</a>.</p>
 </body>
 </html>
