@@ -78,13 +78,33 @@ app.post("/api/addCredits", (req, res) => {
   res.json({ success: true, user });
 });
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 
-//post LOGIN 
+
+// ROUTE LOGIN
 app.post("/api/login", (req, res) => {
   const { username, password } = req.body;
+
+  // Controllo che arrivino correttamente
+  if(!username || !password){
+    return res.status(400).json({ error: "Username e password richiesti" });
+  }
+
+  // Cerca utente
   const user = users.find(u => u.username === username && u.password === password);
-  if(!user) return res.status(401).json({ error: "Credenziali errate" });
-  res.json({ id: user.id, name: user.name, isAdmin: user.isAdmin, credits: user.credits });
+
+  if(!user){
+    return res.status(401).json({ error: "Credenziali errate" });
+  }
+
+  // Restituisce dati senza password
+  res.json({
+    id: user.id,
+    name: user.name,
+    credits: user.credits,
+    isAdmin: user.isAdmin
+  });
 });
+
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
