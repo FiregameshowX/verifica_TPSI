@@ -1,5 +1,8 @@
+const backendURL = "https://verifica-tpsi.onrender.com/api/messages"; // URL reale Render
+
+// Carica messaggi dal backend
 function loadMessages() {
-  fetch("https://verifica-tpsi.onrender.com/api/messages")
+  fetch(backendURL)
     .then(res => res.json())
     .then(data => {
       const list = document.getElementById("messages");
@@ -13,13 +16,22 @@ function loadMessages() {
     .catch(err => console.error("Errore:", err));
 }
 
-function addMessage(text) {
-  fetch("https://verifica-tpsi.onrender.com/api/messages", {
+// Aggiunge un nuovo messaggio
+function addMessage() {
+  const input = document.getElementById("newMessage");
+  const text = input.value.trim();
+  if (!text) return alert("Inserisci un messaggio");
+
+  fetch(backendURL, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ text })
   })
     .then(res => res.json())
-    .then(data => loadMessages())
+    .then(data => {
+      console.log("Messaggio aggiunto:", data);
+      input.value = "";
+      loadMessages(); // ricarica la lista
+    })
     .catch(err => console.error("Errore:", err));
 }
