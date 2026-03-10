@@ -1,4 +1,26 @@
 [
-  { "id": 1, "name": "Mario", "credits": 100 },
-  { "id": 2, "name": "Luigi", "credits": 50 }
+  {
+    "id": 1,
+    "name": "Mario",
+    "credits": 100,
+    "username": "mario",
+    "password": "mario123",
+    "isAdmin": false
+  },
+  {
+    "id": 2,
+    "name": "Luigi",
+    "credits": 50,
+    "username": "luigi",
+    "password": "luigi123",
+    "isAdmin": false
+  },
+  {
+    "id": 3,
+    "name": "Admin",
+    "credits": 0,
+    "username": "admin",
+    "password": "admin123",
+    "isAdmin": true
+  }
 ]
