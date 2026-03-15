@@ -43,6 +43,12 @@ L’IA (ChatGPT) è stata utilizzata per:
 - **Backend (Node.js su Render):** [https://verifica-tpsi.onrender.com](https://verifica-tpsi.onrender.com)  
 - **Frontend (GitHub Pages):** [https://firegameshowx.github.io/verifica_TPSI/](https://firegameshowx.github.io/verifica_TPSI/)
 
+
+name: admin
+password: admin123
+
+name: mario
+password: mario123
 ---
 
 > Nota: I dati persistono su file JSON (`users.json`, `products.json`). L’aggiornamento in tempo reale avviene tramite fetch tra frontend e backend.
